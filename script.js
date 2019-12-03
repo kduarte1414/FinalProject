@@ -10,11 +10,14 @@ worldPromise= d3.json("world.json");
 carbonPromise= d3.csv("newCo2.csv");
 Promise.all([worldPromise,carbonPromise]).then(
     function(values){
-        console.log("works",values);
-		setup(values[0]);
-		drawCircles(values);
+        setup(values[0]);
+       binded= merge(values);
+        console.log("works", binded);
+
+		drawCircles(binded);
 		drawLegend();
 		options();
+     
     }, function(err){
         console.log("broken",err);
     }
@@ -38,41 +41,27 @@ color.domain([
 
 var merge= function(values)
 {
-	console.log("values",values)
-var dataA= values[0];
-var dataB= values[1];
-var hash={}
+    console.log("values",values)
+    var dataA= values[0].features;
+    var dataB= values[1];
+    var hash={}
+    
 dataA.forEach(function(element)
-{
-	hash[element.features]=element
+{  
+    element.data={}
+	hash[element.properties.name]=element
+    console.log(dataA);
 })
 	
 dataB.forEach(function(e2)
 {
-		if (hash[e2.emissions]){
-			hash[e2.emissions].data=e2;
-		} else console.log("e2.emissions", e2.entity, e2)
+		if (hash[e2.Name]){
+			hash[e2.Name].data[e2.Year]=e2;
+		} else console.log("e2.name", e2.Name, e2)
 }) 
-	console.log(dataA)
+    console.log("dataA",dataA)
+    return dataA
 } 
-
-/*var combine=function(world){
-for (var i=0; i<data.length; i++){
-	//grab country name 
-	var dataCountry=data[i].emissions;
-	//grab data value and convert from string to float 
-	var dataValue=parseFloat(data[i].value);
-	//find corresponding state inside the geoJson
-	for (var j=0; j<world.features.length;j++){
-		var jsonCountry= world.feautures[j].properties.name;
-		if (dataState== jsonState){
-			world.features[j].properties.value=dataValue;
-			break;
-		}
-	}
-}
-} */
-
 
 //Must redraw circles based on year
 var drawCircles= function(data)
@@ -80,16 +69,24 @@ var drawCircles= function(data)
 	svg.append("g")
 	.attr("class","bubble")
 	.selectAll("circle")
-	.data(data[0].features)
+	.data(data)
 	.enter().append("circle")
-	.attr("transform", function(d) 
+        .attr("transform", function(d) 
 		  { 
 		return "translate(" + path.centroid(d) + ")";
 		  })
-	.attr("r",2)//
-	// function(d){return radius(d.properties.emmisions );})Here scale to Co2 emissions per capita 
+	.attr("r",function(d){
+        console.log(d.data)
+        return 2})
+    .on("click",function(d){
+console.log("okay")//
+	// function(d){return radius(d.data.emmisions );})Here scale to Co2 emissions per capita 
+})
 }
-
+//Get emissions for specified year 
+var getEmissions=function(country){
+    return country.Emissions
+}
 var drawLegend=function(){
 var size=d3.scaleSqrt()
 .domain([1,30])
@@ -107,7 +104,7 @@ d3.select("#legend").selectAll("legend").data(show)
 	.attr("r",function(d){return size(d)})
 	.style("fill","none")
 	.attr("stroke","black")
-	    .style('stroke-dasharray', ('2,2'))
+	    .style('stroke-dasharray',('2,2'))
 
 ;
 	
