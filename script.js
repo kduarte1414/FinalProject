@@ -70,7 +70,7 @@ var data=values[0]//getting the topoJson;
 .append("path").attr("d",path).style("stroke","white").style("fill","lightgray");
 var combined=merge(values);
 console.log("works", combined);
-drawCircles(combined,2011)
+drawCircles(combined,2016)
 
 
 }
@@ -111,7 +111,7 @@ dataB.forEach(function(e2)
 
 	var radius = d3.scaleSqrt()
     .domain([0,64])
-    .range([0,30]);
+    .range([0,15]);
 
 //Parameters:Takes in data and Year as input
 var drawCircles= function(data,year)
@@ -122,7 +122,7 @@ var drawCircles= function(data,year)
 	.attr("class","bubble")
 	.selectAll("circle")
 	.data(data)
-		/*.sort(function(a,b){return b.data[1990].Emissions-a.data[1990].Emissions;})*/
+		/*.sort(function(a,b){ console.log(b.getEmission(d.data,year)-a.getEmission(d.data,year));})*/
 	.enter().append("circle")
         .attr("transform", function(d) 
 		  { 
@@ -131,9 +131,10 @@ var drawCircles= function(data,year)
 	.attr("r",function(d)
 
 	{ 	 //d.data[1990].Emissions
-		if (getEmission(d.data,year)){
-		console.log("emissions for",d.data,year,getEmission(d.data,year))
-		r=radius(getEmission(d.data,year));
+		if (d.data){
+            emission=getEmission(d.data,year)
+		console.log("emissions for",d.data,year,emission)
+		r=radius(emission);
 		}
 		else {
 			r=0
@@ -154,8 +155,8 @@ var drawCircles= function(data,year)
  
 //parameters: takes in country (d.data)and returns that country for the specified year Emission
 var getEmission=function(country,time)
-{
-	return country[time].Emissions
+{    if (country[time]){
+	return country[time].Emissions}
 }
 
 
