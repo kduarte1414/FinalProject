@@ -18,6 +18,47 @@ Promise.all([worldPromise,carbonPromise]).then(
 )
 
 
+//Draw Legend
+var drawLegend=function(){
+var size=d3.scaleSqrt()
+.domain([1,30])
+.range([1,30])
+var show=[10,30,60]
+var xCircle=110
+var xLabel=200
+var yCircle=400
+d3.select("#legend").append("h1").text("Legend");
+d3.select("#legend").selectAll("legend").data(show)
+	.enter()
+	.append("circle")
+	.attr("cx",xCircle)
+	.attr("cy",function(d){return yCircle-size(d)})
+	.attr("r",function(d){return size(d)})
+	.style("fill","none")
+	.attr("stroke","black")
+	    .style('stroke-dasharray',('2,2'));
+//labels
+	d3.select("#legend").selectAll("legend").data(show).enter()
+	.append("text").attr("x",xLabel)
+	.attr("y",function(d){return yCircle-size(d)})
+	.text(function(d){return d})
+	.style("font-size",10)
+}
+
+//Drop Down Menu
+var options=function(){
+var allGroup=["Emissions-GDP","Emissions-Risk","GDP-Risk"]
+var dropDown= d3.select("#options").append("select").selectAll("myOptions").data(allGroup).enter().append("option").text(function(d){return d;}).attr("value",function(d){return d;})
+}
+
+//slider 
+/*var slider= document.("#Range");
+var output=document.("#demo");
+output.innerHTML=slider.value;
+
+slider.oninput = function() {
+ output.innerHTML = this.value; */
+
 //Set Up function creates the Map in the background and displays the circles for year: by default
 
 var setup= function(values){
@@ -26,7 +67,7 @@ var data=values[0]//getting the topoJson;
 	svg.selectAll("path")
 	.data(data.features)
 	.enter()
-.append("path").attr("d",path).style("stroke","white").style("fill","rgb(116,196,118)");
+.append("path").attr("d",path).style("stroke","white").style("fill","lightgray");
 var combined=merge(values);
 console.log("works", combined);
 drawCircles(combined,2011)
@@ -70,7 +111,7 @@ dataB.forEach(function(e2)
 
 	var radius = d3.scaleSqrt()
     .domain([0,64])
-    .range([0,15]);
+    .range([0,30]);
 
 //Parameters:Takes in data and Year as input
 var drawCircles= function(data,year)
@@ -89,10 +130,10 @@ var drawCircles= function(data,year)
 		  })
 	.attr("r",function(d)
 
-	{ 	 						  emission=getEmission(d.data,year)//d.data[1990].Emissions
-		if (emission>=0){
-		console.log("emissions for",year, emission)
-		r=radius(emission);
+	{ 	 //d.data[1990].Emissions
+		if (getEmission(d.data,year)){
+		console.log("emissions for",d.data,year,getEmission(d.data,year))
+		r=radius(getEmission(d.data,year));
 		}
 		else {
 			r=0
@@ -117,44 +158,4 @@ var getEmission=function(country,time)
 	return country[time].Emissions
 }
 
-//Draw Legend
-var drawLegend=function(){
-var size=d3.scaleSqrt()
-.domain([1,30])
-.range([1,30])
-var show=[10,30,60]
-var xCircle=110
-var xLabel=200
-var yCircle=400
-d3.select("#legend").append("h1").text("Legend");
-d3.select("#legend").selectAll("legend").data(show)
-	.enter()
-	.append("circle")
-	.attr("cx",xCircle)
-	.attr("cy",function(d){return yCircle-size(d)})
-	.attr("r",function(d){return size(d)})
-	.style("fill","none")
-	.attr("stroke","black")
-	    .style('stroke-dasharray',('2,2'));
-//labels
-	d3.select("#legend").selectAll("legend").data(show).enter()
-	.append("text").attr("x",xLabel)
-	.attr("y",function(d){return yCircle-size(d)})
-	.text(function(d){return d})
-	.style("font-size",10)
-}
 
-//Drop Down Menu
-var options=function(){
-var allGroup=["Emissions-GDP","Emissions-Risk","GDP-Risk"]
-var dropDown= d3.select("#options").append("select").selectAll("myOptions").data(allGroup).enter().append("option").text(function(d){return d;}).attr("value",function(d){return d;})
-}
-
-//slider 
-var slider= document.getElemenById("Range");
-var output=document.geElemenById("demo");
-output.innerHTML=slider.value;
-
-slider.oninput = function() {
- output.innerHTML = this.value;
-}
