@@ -1,20 +1,14 @@
-var svg= d3.select("#map") 
-var width=+svg.attr("width");
-var height= +svg.attr("height");
+var svg = d3.select("#map") 
+var width =+svg.attr("width");
+var height = +svg.attr("height");
 var projection=d3.geoMercator();
 
 var path= d3.geoPath().projection(projection);
-
-
 worldPromise= d3.json("world.json");
 carbonPromise= d3.csv("newCo2.csv");
 Promise.all([worldPromise,carbonPromise]).then(
     function(values){
-        setup(values[0]);
-       binded= merge(values);
-        console.log("works", binded);
-
-		drawCircles(binded);
+        setup(values);
 		drawLegend();
 		options();
      
@@ -22,12 +16,23 @@ Promise.all([worldPromise,carbonPromise]).then(
         console.log("broken",err);
     }
 )
-var setup= function(data){
+
+
+//Set Up function creates the Map in the background and displays the circles for year: by default
+
+var setup= function(values){
 	//Creating the background Map
+var data=values[0]//getting the topoJson;
 	svg.selectAll("path")
 	.data(data.features)
 	.enter()
-.append("path").attr("d",path).style("stroke","white").style("fill","lightgray");}
+.append("path").attr("d",path).style("stroke","white").style("fill","rgb(116,196,118)");
+var combined=merge(values);
+console.log("works", combined);
+drawCircles(combined,2011)
+
+
+}
 
 // Color Scale for GDP 
 var colorscale= function(data){
@@ -50,43 +55,69 @@ dataA.forEach(function(element)
 {  
     element.data={}
 	hash[element.properties.name]=element
-    console.log(dataA);
 })
 	
 dataB.forEach(function(e2)
 {
 		if (hash[e2.Name]){
 			hash[e2.Name].data[e2.Year]=e2;
-		} else console.log("e2.name", e2.Name, e2)
+		} 
 }) 
     console.log("dataA",dataA)
     return dataA
 } 
 
-//Must redraw circles based on year
-var drawCircles= function(data)
+
+	var radius = d3.scaleSqrt()
+    .domain([0,64])
+    .range([0,15]);
+
+//Parameters:Takes in data and Year as input
+var drawCircles= function(data,year)
 {
+
+	
 	svg.append("g")
 	.attr("class","bubble")
 	.selectAll("circle")
 	.data(data)
+		/*.sort(function(a,b){return b.data[1990].Emissions-a.data[1990].Emissions;})*/
 	.enter().append("circle")
         .attr("transform", function(d) 
 		  { 
 		return "translate(" + path.centroid(d) + ")";
 		  })
-	.attr("r",function(d){
-        console.log(d.data)
-        return 2})
-    .on("click",function(d){
-console.log("okay")//
-	// function(d){return radius(d.data.emmisions );})Here scale to Co2 emissions per capita 
-})
+	.attr("r",function(d)
+
+	{ 	 						  emission=getEmission(d.data,year)//d.data[1990].Emissions
+		if (emission>=0){
+		console.log("emissions for",year, emission)
+		r=radius(emission);
+		}
+		else {
+			r=0
+		}
+		return r;
+	})
+.on("mouseover",function(d){
+        d3.select("#tooltip")
+        .style("left",(d3.event.pageX+20+"px"))
+        .style("top",(d3.event.pageY-15+"px"))
+        .classed("hidden",false)
+        }) 
+.on("mouseout",function(){
+  d3.select("#tooltip").classed("hidden",true)
+    })
+}	
+
+ 
+//parameters: takes in country (d.data)and returns that country for the specified year Emission
+var getEmission=function(country,time)
+{
+	return country[time].Emissions
 }
-//Get emissions for specified year 
-var getEmissions=function(country){
-    return country.Emissions
-}
+
+//Draw Legend
 var drawLegend=function(){
 var size=d3.scaleSqrt()
 .domain([1,30])
@@ -104,11 +135,8 @@ d3.select("#legend").selectAll("legend").data(show)
 	.attr("r",function(d){return size(d)})
 	.style("fill","none")
 	.attr("stroke","black")
-	    .style('stroke-dasharray',('2,2'))
-
-;
-	
-	//labels
+	    .style('stroke-dasharray',('2,2'));
+//labels
 	d3.select("#legend").selectAll("legend").data(show).enter()
 	.append("text").attr("x",xLabel)
 	.attr("y",function(d){return yCircle-size(d)})
@@ -116,10 +144,17 @@ d3.select("#legend").selectAll("legend").data(show)
 	.style("font-size",10)
 }
 
+//Drop Down Menu
 var options=function(){
-//Create slider for Time 
- var allGroup=["Emissions-GDP","Emissions-Risk","GDP-Risk"]
-//Create Drop Down
+var allGroup=["Emissions-GDP","Emissions-Risk","GDP-Risk"]
 var dropDown= d3.select("#options").append("select").selectAll("myOptions").data(allGroup).enter().append("option").text(function(d){return d;}).attr("value",function(d){return d;})
 }
 
+//slider 
+var slider= document.getElemenById("Range");
+var output=document.geElemenById("demo");
+output.innerHTML=slider.value;
+
+slider.oninput = function() {
+ output.innerHTML = this.value;
+}
