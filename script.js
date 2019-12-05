@@ -13,7 +13,7 @@ var margins={top:10,right:50,bottom:50,left:50}
     .attr("width",screen.width)
     .attr("height",screen.height)
 
-var projection=d3.geoMercator().translate([450,370]).scale([150])
+var projection=d3.geoMercator().translate([400,370]).scale([130])
 
 
 var path= d3.geoPath().projection(projection);
@@ -79,7 +79,9 @@ var combined=merge(values);
 var values=["Emissions/GDP","Emissions/Deaths","GDP/Deaths"];
 d3.select("#options").append("p").text(values[0]).on("click",function(){
     drawCircles(combined,year)
-    d3.select("#slide").append("button").text("next").attr("id","n");
+	
+	d3.select("#slide").selectAll("button").remove();
+	d3.select("#slide").append("button").text("next").attr("id","n");
 	d3.select("#n").on("click",function(d){
 		if(year<= 2017){
 		next=year++;
@@ -91,7 +93,8 @@ d3.select("#options").append("p").text(values[1]).attr("id","second");
 d3.select("#options").append("p").text(values[2]).attr("id","third");
 d3.select("#second").on("click",function(){
    optionED(combined,year)
-    d3.select("#slide").append("button").text("next").attr("id","n");
+   d3.select("#slide").selectAll("button").remove();
+	d3.select("#slide").append("button").text("next").attr("id","n");
 	d3.select("#n").on("click",function(d){
 		if(year<= 2017){
 		next=year++;
@@ -101,7 +104,8 @@ d3.select("#second").on("click",function(){
 })
 d3.select("#third").on("click",function(){
    optionGD(combined,year)
-    d3.select("#slide").append("button").text("next").attr("id","n");
+   d3.select("#slide").selectAll("button").remove();
+	d3.select("#slide").append("button").text("next").attr("id","n");
 	d3.select("#n").on("click",function(d){
 		if(year<= 2017){
 		next=year++;
@@ -174,11 +178,10 @@ var drawCircles= function(data,year)
     .domain([0,64])
     .range([0,20]);
     // Color Scale for GDP 
-var color= d3.scaleQuantize()
-.range(["rgb(116,196,118)","rgb(65,171,93)","rgb(35,139,69)","rgb(0,109,44)", "rgb(0,68,27)"])
+var color= d3.scaleOrdinal()
+.range(["rgb(237,248,233)","rgb(116,196,118)","rgb(116,196,118)","rgb(49,163,84)","rgb(0,90,50)"]);
 color.domain([
-	0,515000
-]);
+	215,515000]);
 	svg.selectAll(".bubble").remove();
 	svg.append("g")
 	.attr("class","bubble")
@@ -211,25 +214,25 @@ color.domain([
         }
     )
 .on("mouseover",function(d){
-        d3.select("#tooltip")
-        .style("left",(d3.event.pageX+20+"px"))
-        .style("top",(d3.event.pageY-15+"px"))
-		.text("Country: "+d.data[year].Name+ " Emission: "+ getEmission(d.data,year))
-        .classed("hidden",false);
+    
+		name=d.data[year].Name
+		d3.select("#info").selectAll("h1").remove();
+		d3.select("#info").selectAll("p").remove();
+		d3.select("#info").append("h1").text(name);
+		d3.select("#info").append("p").text("Emission:"+ getEmission(d.data,year))
+		d3.select("#info").append("p").text("GDP:"+GDP(d.datag,year))
+	})
+		//.text("Country: "+d.data[year].Name+ " Emission: "+ getEmission(d.data,year))
+        //.classed("hidden",false);
 		
-        }) 
-.on("mouseout",function(){
-  d3.select("#tooltip").classed("hidden",true)
-    })
 }
 
 // Function that draws circles for deaths Vs Emissions
 var optionED= function(data,year){
-        // Color Scale for GDP 
 svg.selectAll(".bubble").remove();
-var color= d3.scaleQuantize()
-//redscale
-.range(["rgb(254,229,217)","rgb(252,174,145)","rgb(251,106,74)","rgb(254,229,217)"])
+	//Death counts will be bubble color
+var color= d3.scaleOrdinal()
+.range(["rgb(254,229,217)","rgb(252,187,161)","rgb(252,174,145)","rgb(251,106,74)"])
 color.domain([
 	8,320
 ]);
@@ -243,7 +246,6 @@ color.domain([
 	.attr("class","bubble")
 	.selectAll("circle")
 	.data(data)
-		/*.sort(function(a,b){ console.log(b.getEmission(d.data,year)-a.getEmission(d.data,year));})*/
 	.enter().append("circle")
         .attr("transform", function(d) 
 		  { 
@@ -254,7 +256,7 @@ color.domain([
 
 	{ 	
 		if (d.data){
-        emission=getEmmission(d.data,year)
+      emission=getEmission(d.data,year)
 		r=radius(emission);
 		}
 		else {
@@ -269,18 +271,15 @@ color.domain([
         else { return "#ccc"}
         }
     )
-.on("mouseover",function(d){
-        d3.select("#tooltip")
-        .style("left",(d3.event.pageX+20+"px"))
-        .style("top",(d3.event.pageY-15+"px"))
-		.text("Country: "+d.data[year].Name+ " Emission: "+ getEmission(d.data,year)
-             + " Death: "+ Death(d.datar,year))
-        .classed("hidden",false);
-		
-        }) 
-.on("mouseout",function(){
-  d3.select("#tooltip").classed("hidden",true)
-    })
+       .on("mouseover",function(d){
+    
+		name=d.data[year].Name
+		d3.select("#info").selectAll("h1").remove();
+		d3.select("#info").selectAll("p").remove();
+		d3.select("#info").append("h1").text(name);
+		d3.select("#info").append("p").text("Emission:"+ getEmission(d.data,year))
+		d3.select("#info").append("p").text("Deaths:"+GDP(d.datag,year))
+	})
 }
 
 
@@ -288,25 +287,23 @@ color.domain([
 var optionGD=function(data,year){
     var radius = d3.scaleSqrt()
     .domain([0,515000])
-    .range([0,20]);
+    .range([0,25]);
     svg.selectAll(".bubble").remove();
-var color= d3.scaleQuantize()
-.range(["rgb(116,196,118)","rgb(65,171,93)","rgb(35,139,69)","rgb(0,109,44)", "rgb(0,68,27)"])
+var color= d3.scaleOrdinal()
+.range(["rgb(254,229,217)","rgb(252,187,161)","rgb(252,174,145)","rgb(251,106,74)"])
 color.domain([
-	0,515000
+	8,320
 ]);
 	svg.selectAll(".bubble").remove();
 	svg.append("g")
 	.attr("class","bubble")
 	.selectAll("circle")
 	.data(data)
-		/*.sort(function(a,b){ console.log(b.getEmission(d.data,year)-a.getEmission(d.data,year));})*/
 	.enter().append("circle")
         .attr("transform", function(d) 
 		  { 
 		return "translate(" + path.centroid(d) + ")";
 		  })
-    //Options changes this information 
 	.attr("r",function(d)
 
 	{ 	
@@ -327,19 +324,17 @@ color.domain([
         }
     )
 .on("mouseover",function(d){
-        d3.select("#tooltip")
-        .style("left",(d3.event.pageX+20+"px"))
-        .style("top",(d3.event.pageY-15+"px"))
-		.text("Country: "+d.data[year].Name+ " GDP: "+ GDP(d.datag,year)+ "Death: "+ Death(d.datar,year))
-        .classed("hidden",false);
-		
-        }) 
-.on("mouseout",function(){
-  d3.select("#tooltip").classed("hidden",true)
-    })
-}
     
-
+		name=d.data[year].Name
+		d3.select("#info").selectAll("h1").remove();
+		d3.select("#info").selectAll("p").remove();
+		d3.select("#info").append("h1").text(name);
+		
+		d3.select("#info").append("p").text("GDP: "+GDP(d.datag,year));
+		d3.select("#info").append("p").text("Deaths by Air Pollution: "+ Death(d.datar,year))
+	})
+    
+}
 
 var Death= function(country,time){
     if(country[time]){
@@ -354,6 +349,7 @@ var GDP=function(country,time){
 var getEmission=function(country,time)
 {    if (country[time]){
 	return country[time].Emissions}
+ else{ return 0}
 }
 
 

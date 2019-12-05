@@ -7,7 +7,15 @@
 h1{
 	color:lightgray;
 }
-
+#options p{
+	width:120px;
+	border: solid;
+	padding:4px;
+	align-content: center;	
+}
+#options p:hover{
+background-color:lightgray;
+}
 #tooltip{    
     position:fixed;
     border-radius:10px;
@@ -17,18 +25,14 @@ h1{
     height:70px;
 	color:black;
 }
+
 .hidden{
     display:none;
-}
-
-table{
-    border:solid;
 }
 #options,td{
 margin:10px;
 padding:10px;
-border:solid;
-border-collapse: collapse;
+
 
     
     
