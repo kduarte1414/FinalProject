@@ -3,40 +3,47 @@
   stroke: #fff;
   stroke-width: .5px;
 }
+#Map{
+	
+;
 
-h1{
-	color:lightgray;
+	padding:5px;
+}
+	
+}
+#title {
+	color:#92b6d5;
+
 }
 #options p{
 	width:120px;
-	border: solid;
-	padding:4px;
-	align-content: center;	
+	border-bottom: solid #ffd9b3;
+		color:
+ #3399ff;
+	;
+
+
+
 }
+
 #options p:hover{
 background-color:lightgray;
-}
-#tooltip{    
-    position:fixed;
-    border-radius:10px;
-    box-shadow: 4px 4px 10px rgba(0,0,0,0,.4);
-    pointer-events:none;
-    width:200px;
-    height:70px;
-	color:black;
 }
 
 .hidden{
     display:none;
 }
-#options,td{
-margin:10px;
-padding:10px;
 
+h2{
 
-    
+	color:#ffa64d;
+}    
     
 }
 td:hover{
     background-color: lightblue;
+}
+#options{
+position:relative;
+	
 }

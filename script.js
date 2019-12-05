@@ -31,8 +31,13 @@ Promise.all([worldPromise,carbonPromise, gdpPromise, airPromise]).then(
     }
 )
 
+//draw next 
+
+
+
+
 //Draw Legend
-var drawLegend=function(){
+/*var drawLegend=function(){
 var size=d3.scaleSqrt()
 .domain([1,30])
 .range([1,15])
@@ -57,7 +62,7 @@ d3.select("#legend").selectAll("legend").data(show)
 	.text(function(d){return d})
 	.style("font-size",10)
 }
-
+*/
 
 
 //Set Up function creates the Map in the background and displays the circles for year: by default
@@ -71,53 +76,62 @@ var data=values[0]
 	svg.selectAll("path")
 	.data(data.features)
 	.enter()
-.append("path").attr("d",path).style("stroke","white").style("fill","lightgray");
+.append("path").attr("d",path).style("stroke","white").style("fill","#92b6d5");
 var combined=merge(values);
     year=1990;
-    //Create option buttons
 
-var values=["Emissions/GDP","Emissions/Deaths","GDP/Deaths"];
+
+
+var values=["Emissions Tonnes per Capita/GDP","Emissions Tonnes per Capita/Deaths related to Air Pollution","GDP/Deaths related to Air Pollution"];
+	d3.select("#options").append("p").text("Click an option below to display data")
 d3.select("#options").append("p").text(values[0]).on("click",function(){
     drawCircles(combined,year)
 	
-	d3.select("#slide").selectAll("button").remove();
-	d3.select("#slide").append("button").text("next").attr("id","n");
-	d3.select("#n").on("click",function(d){
+	d3.select("#year").selectAll("button").remove();
+	d3.select("#year").append("button").text("next").attr("id","n");
+	d3.select("#n").on("click",function(d){d3.select("#year").selectAll("h2").remove();
+			d3.select("#year").append("h2").text(year);
 		if(year<= 2017){
 		next=year++;
-			console.log("year",year);
+			
 		drawCircles(combined,next)
 }});
+	
 });
+
 d3.select("#options").append("p").text(values[1]).attr("id","second");
 d3.select("#options").append("p").text(values[2]).attr("id","third");
 d3.select("#second").on("click",function(){
    optionED(combined,year)
-   d3.select("#slide").selectAll("button").remove();
-	d3.select("#slide").append("button").text("next").attr("id","n");
-	d3.select("#n").on("click",function(d){
+		
+	d3.select("#year").selectAll("button").remove();
+	d3.select("#year").append("button").text("next").attr("id","n");
+	d3.select("#n").on("click",function(d){d3.select("#year").selectAll("h2").remove();
+			d3.select("#year").append("h2").text(year);
 		if(year<= 2017){
 		next=year++;
-			console.log("year",year);
+			
 		optionED(combined,next)
 }});
-})
+
+
+});
+
 d3.select("#third").on("click",function(){
    optionGD(combined,year)
-   d3.select("#slide").selectAll("button").remove();
-	d3.select("#slide").append("button").text("next").attr("id","n");
-	d3.select("#n").on("click",function(d){
+   	
+	d3.select("#year").selectAll("button").remove();
+	d3.select("#year").append("button").text("next").attr("id","n");
+	d3.select("#n").on("click",function(d){d3.select("#year").selectAll("h2").remove();
+			d3.select("#year").append("h2").text(year);
 		if(year<= 2017){
 		next=year++;
-			console.log("year",year);
+			
 		optionGD(combined,next)
 }});
 })
 console.log("works", combined);
 
-//drawCircles(combined,year)
-	
-//Creating a time slider
 
 };
 	
@@ -299,11 +313,14 @@ color.domain([
 	.attr("class","bubble")
 	.selectAll("circle")
 	.data(data)
-	.enter().append("circle")
+	.enter().append("circle").attr("class","cb");
+	svg.selectAll(".cb")
         .attr("transform", function(d) 
 		  { 
 		return "translate(" + path.centroid(d) + ")";
 		  })
+	
+	
 	.attr("r",function(d)
 
 	{ 	
@@ -322,19 +339,21 @@ color.domain([
             return color(value);}
         else { return "#ccc"}
         }
-    )
-.on("mouseover",function(d){
+    );
+svg.selectAll(".cb").on("mouseover",function(d){
     
 		name=d.data[year].Name
 		d3.select("#info").selectAll("h1").remove();
 		d3.select("#info").selectAll("p").remove();
-		d3.select("#info").append("h1").text(name);
+		d3.select("#info").append("h1").text(name+" "+year);
 		
 		d3.select("#info").append("p").text("GDP: "+GDP(d.datag,year));
 		d3.select("#info").append("p").text("Deaths by Air Pollution: "+ Death(d.datar,year))
 	})
-    
+
 }
+
+
 
 var Death= function(country,time){
     if(country[time]){
