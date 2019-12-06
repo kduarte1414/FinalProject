@@ -1,48 +1,90 @@
-.bubble {
-
-  stroke: #fff;
-  stroke-width: .5px;
+*{
+box-sizing: border-box;
 }
-#Map{
-	
-;
-
-	padding:5px;
+body{
+	margin:0;
 }
-	
-
-#title {
+h1{
+color:#92b6d5;
+	background-color: #F1F1F1;
+	text-align: center;
+}
+.header{
+background-color: #F1F1F1;
+  text-align: center;
+  padding: 20px;
 	color:#92b6d5;
 
 }
-#options p{
-	width:120px;
-	border-bottom: solid #ffd9b3;
-		color:
- #3399ff;
+.nav{
+  overflow: hidden;
+  background-color: #F1F1F1;
+	align-content:center;
+}
+
+.side{
+width:5%;
+float:left;
+}
+.middle{
+	width:75%;
+	float:left;
+	padding:5px;
+}
+
+.row:after{
+  content: "";
+  display:table;
+  clear: both;
+}
+#info{
+width:20%;
+padding:5px;
+	float:left;
+	  background-color: #F1F1F1;
+}
+
+#Map{	
+	background-color:#F1F1F1;
+	padding:5px;
+	display:block;
+	margin:auto;
+}
 	
 
 
 
-}
 
 #options p:hover{
-	
-background-color:lightgray;
+background-color:darkseagreen;
 }
+
+
+
 #info h2{
 color:#ffa64d;
 }
 h2{
 
 	color:#ffa64d;
-}    
-    
+} 
+table{
+	display:block;
+	align-content: center;
 }
+td{
+	margin:3px;
+	background-color:#F1F1F1;
+	border:white solid;
+}
+tr:hover{
+	background-color:lightblue;
+}    
 td:hover{
     background-color: lightblue;
 }
-#options{
-position:relative;
-	
+
+
+circle:hover{
+	stroke: black;
 }
