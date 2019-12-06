@@ -3,7 +3,7 @@
 //Output-side real GDP per capita (2011 international-$)
 
 //"Deaths - Air pollution - Sex: Both - Age: Age-standardized (Rate) (deaths per 100,000)"
-var screen= {width:800, height:800}
+var screen= {width:800, height:500}
 var margins={top:10,right:50,bottom:50,left:50}
 
 
@@ -64,8 +64,8 @@ d3.select("#legend").selectAll("legend").data(show)
 
 
 
-//First visual 
-/*var displayAll=function(values){
+//First visual
+var displayAll=function(values){
 	var color= d3.scaleQuantize()
 .range(["rgb(237,248,233)","rgb(116,196,118)","rgb(116,196,118)","rgb(49,163,84)","rgb(0,90,50)"]);
 color.domain([
@@ -82,7 +82,7 @@ color.domain([
 	
 	});
 }
-*/
+
 
 
 
