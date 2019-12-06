@@ -22,25 +22,26 @@ airPromise=d3.csv("air.csv");
 Promise.all([worldPromise,carbonPromise, gdpPromise, airPromise]).then(
     function(values){
         setup(values);
-		displayAll(values);
     }, function(err){
         console.log("broken",err);
     }
 )
-
-
 //Draw Legend
-var drawLegend=function(min,max,radius){
+var drawLegend=function(min,max,show,text){
 d3.select("#legend").selectAll("circle").remove();
 d3.select("#legend").selectAll("text").remove();
 var size=d3.scaleSqrt()
 .domain([min,max])
 .range([0,20])
-var show=[10,30,60]
+var show=show
 var xCircle=110
 var xLabel=150
 var yCircle=400
-d3.select("#legend").append("h1").text("Legend");
+d3.select("#legend").append("text").text(text).attr("x",function(){
+	if (text=="Carbon Emissions"){
+		return 76}
+	else{ return 100}
+	}).attr("y",350).style("font-size",10);
 d3.select("#legend").selectAll("legend").data(show)
 	.enter()
 	.append("circle")
@@ -56,10 +57,11 @@ d3.select("#legend").selectAll("legend").data(show)
 	.attr("y",function(d){return yCircle-size(d)})
 	.text(function(d){return d})
 	.style("font-size",10)
-	d3.select("#legend").append("rect").attr("x",30).attr("y",100)
-		.attr("width",20).attr("height",100);
+	
 	
 }
+
+
 
 
 //First visual 
@@ -205,25 +207,30 @@ dataC.forEach(function(e3)
 //Parameters:Takes in data and Year as input
 var drawCircles= function(data,year)
 {
-
+	show=[10,30,64]
+drawLegend(0,64,show,"Carbon Emissions")
     var radius = d3.scaleSqrt()
     .domain([0,64])
     .range([0,20]);
 
     // Color Scale for GDP
 var logScale= d3.scaleLog().domain([215,515000])
-var color= d3.scaleSequential((d)=> d3.interpolateGreens(logScale(d)))
+var color= d3.scaleSequential((d)=> d3.interpolateGreens(logScale(d)));
 
-/*var color= d3.scaleQuantize()
-.range(["rgb(237,248,233)","rgb(116,196,118)","rgb(116,196,118)","rgb(49,163,84)","rgb(0,90,50)"]);
-color.domain([
-	215,515000]);*/
+
+	d3.select("#legend").selectAll("rect").remove();
+	d3.select("#legend").append("text").text("GDP").attr("x",40).attr("y",355).style("font-size",10)
+	d3.select("#legend").append("rect").attr("x",50)
+	.attr("y",360).attr("width",10).attr("height",10).style("fill",color(215))
+	d3.select("#legend").append("rect").attr("x",50)
+	.attr("y",370).attr("width",10).attr("height",10).style("fill",color(25642.5))
+	d3.select("#legend").append("rect").attr("x",50)
+	.attr("y",380).attr("width",10).attr("height",10).style("fill",color(515000))
 	svg.selectAll(".bubble").remove();
 	svg.append("g")
 	.attr("class","bubble")
 	.selectAll("circle")
 	.data(data)
-		/*.sort(function(a,b){ console.log(b.getEmission(d.data,year)-a.getEmission(d.data,year));})*/
 	.enter().append("circle")
         .attr("transform", function(d) 
 		  { 
@@ -254,23 +261,30 @@ color.domain([
 		name=d.data[year].Name
 		d3.select("#info").selectAll("h1").remove();
 		d3.select("#info").selectAll("p").remove();
-		d3.select("#info").append("h1").text(name);
+		d3.select("#info").append("h1").text(name+" "+year);
 		d3.select("#info").append("p").text("Emission: "+ getEmission(d.data,year)+" Tonnes per Capita")
 		d3.select("#info").append("p").text("GDP: "+GDP(d.datag,year))
 	})
-		//.text("Country: "+d.data[year].Name+ " Emission: "+ getEmission(d.data,year))
-        //.classed("hidden",false);
-		
+
 }
 
 // Function that draws circles for deaths Vs Emissions
 var optionED= function(data,year){
-
+show=[10,30,64]
 svg.selectAll(".bubble").remove();
 	//Death counts will be bubble color
 var logScale= d3.scaleLog().domain([8,320])
 var color= d3.scaleSequential((d)=> d3.interpolateReds(logScale(d)));
-
+drawLegend(0,64,show,"Carbon Emissions")
+	d3.select("#legend").append("text").text("Deaths per 100,000").attr("x",5).attr("y",358).style("font-size",10)
+	d3.select("#legend").selectAll("rect").remove();
+	d3.select("#legend").append("rect").attr("x",50)
+	.attr("y",360).attr("width",10).attr("height",10).style("fill",color(8))
+	d3.select("#legend").append("rect").attr("x",50)
+	.attr("y",370).attr("width",10).attr("height",10).style("fill",color(150))
+	d3.select("#legend").append("rect").attr("x",50)
+	.attr("y",380).attr("width",10).attr("height",10).style("fill",color(320))
+	
 
     
 	var radius = d3.scaleSqrt()
@@ -307,16 +321,19 @@ svg.append("g")
             return color(value);}
         else { return "#ccc"}
         }
-    )
-       .on("mouseover",function(d){
-    
+    ).on("mouseover",function(d){
 		name=d.data[year].Name
 		d3.select("#info").selectAll("h1").remove();
 		d3.select("#info").selectAll("p").remove();
-		d3.select("#info").append("h1").text(name);
+		d3.select("#info").append("h1").text(name+" "+year);
 		d3.select("#info").append("p").text("Emission: "+ getEmission(d.data,year)+" Tonnes Per Capita")
 		d3.select("#info").append("p").text("Deaths: "+Death(d.datar,year)+ " Deaths - Air pollution - Sex: Both - Age: Age-standardized (Rate) (deaths per 100,000)")
+	
+	
+       
 	})
+	
+	
 }
 
 
@@ -326,7 +343,8 @@ var optionGD=function(data,year){
     var radius = d3.scaleSqrt()
     .domain([215,515000])
     .range([0,25]);
-
+show=[215,257392,515000]
+drawLegend(215,515000,show,"GDP")
     svg.selectAll(".bubble").remove();
 var logScale= d3.scaleLog().domain([8,320])
 var color= d3.scaleSequential((d)=> d3.interpolateReds(logScale(d)));
@@ -362,13 +380,20 @@ var color= d3.scaleSequential((d)=> d3.interpolateReds(logScale(d)));
         else { return "#ccc"}
         }
     );
+	d3.select("#legend").selectAll("rect").remove();
+	d3.select("#legend").append("text").text("Deaths per 100,000").attr("x",5).attr("y",358).style("font-size",10);
+	d3.select("#legend").append("rect").attr("x",50)
+	.attr("y",360).attr("width",10).attr("height",10).style("fill",color(8))
+	d3.select("#legend").append("rect").attr("x",50)
+	.attr("y",370).attr("width",10).attr("height",10).style("fill",color(150))
+	d3.select("#legend").append("rect").attr("x",50)
+	.attr("y",380).attr("width",10).attr("height",10).style("fill",color(320))
 svg.selectAll(".cb").on("mouseover",function(d){
     
 		name=d.data[year].Name
 		d3.select("#info").selectAll("h1").remove();
 		d3.select("#info").selectAll("p").remove();
 		d3.select("#info").append("h1").text(name+" "+year);
-		
 		d3.select("#info").append("p").text("GDP: "+GDP(d.datag,year));
 		d3.select("#info").append("p").text("Deaths by Air Pollution: "+ Death(d.datar,year)+"Deaths - Air pollution - Sex: Both - Age: Age-standardized (Rate) (deaths per 100,000)")
 	})

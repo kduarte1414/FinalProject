@@ -19,9 +19,11 @@ background-color: #F1F1F1;
 .nav{
   overflow: hidden;
   background-color: #F1F1F1;
-	align-content:center;
+align-content:center;
 }
-
+#year{
+background-color:#F1F1F1;
+}
 .side{
 width:5%;
 float:left;
@@ -52,6 +54,10 @@ padding:5px;
 }
 	
 
+#time{
+	background-color:white;
+}
+
 
 
 
@@ -68,12 +74,10 @@ h2{
 
 	color:#ffa64d;
 } 
-table{
-	display:block;
-	align-content: center;
-}
+
 td{
-	margin:3px;
+	margin:5px;
+	padding:10px;	
 	background-color:#F1F1F1;
 	border:white solid;
 }
