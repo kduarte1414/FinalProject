@@ -7,7 +7,7 @@ var screen= {width:750, height:500}
 var margins={top:10,right:50,bottom:50,left:50}
 
 
-    svg= d3.select("#map").attr("width",800).attr("height",500)
+    svg= d3.select("#map").attr("width",850).attr("height",500)
 
 var projection=d3.geoEqualEarth().translate([370,300]).scale([170])
 
@@ -31,7 +31,7 @@ d3.select("#legend").selectAll("circle").remove();
 d3.select("#legend").selectAll("text").remove();
 var size=d3.scaleSqrt()
 .domain([min,max])
-.range([0,20])
+.range([2,20])
 var show=show
 var xCircle=110
 var xLabel=150
@@ -68,7 +68,7 @@ var displayAll=function(values){
 	var color= d3.scaleQuantize()
 .range(["rgb(237,248,233)","rgb(116,196,118)","rgb(116,196,118)","rgb(49,163,84)","rgb(0,90,50)"]);
 color.domain([
-	215,515000]);
+	215,510321]);
 //getting the topoJson;
 	svg.selectAll("path")
 	.data(values[0].features)
@@ -211,10 +211,10 @@ var drawCircles= function(data,year)
 drawLegend(0,64,show,"Carbon Emissions")
     var radius = d3.scaleSqrt()
     .domain([0,64])
-    .range([0,20]);
+    .range([2,20]);
 
     // Color Scale for GDP
-var logScale= d3.scaleLog().domain([215,515000])
+var logScale= d3.scaleLog().domain([215,510321])
 var color= d3.scaleSequential((d)=> d3.interpolateGreens(logScale(d)));
 
 
@@ -225,7 +225,7 @@ var color= d3.scaleSequential((d)=> d3.interpolateGreens(logScale(d)));
 	d3.select("#legend").append("rect").attr("x",50)
 	.attr("y",370).attr("width",10).attr("height",10).style("fill",color(25642.5))
 	d3.select("#legend").append("rect").attr("x",50)
-	.attr("y",380).attr("width",10).attr("height",10).style("fill",color(515000))
+	.attr("y",380).attr("width",10).attr("height",10).style("fill",color(510321))
 	svg.selectAll(".bubble").remove();
 	svg.append("g")
 	.attr("class","bubble")
@@ -293,7 +293,7 @@ drawLegend(0,64,show,"Carbon Emissions")
     
 	var radius = d3.scaleSqrt()
     .domain([0,64])
-    .range([0,20]);
+    .range([2,20]);
 	
     //svg.selectAll(".bubble").remove();
 svg.append("g")
@@ -349,10 +349,10 @@ d3.select("#info").selectAll("h1").remove();
 var optionGD=function(data,year){
 
     var radius = d3.scaleSqrt()
-    .domain([215,515000])
-    .range([0,25]);
-show=[215,257392,515000]
-drawLegend(215,515000,show,"GDP")
+    .domain([215,510321])
+    .range([2,20]);
+show=[215,257392,510321]
+drawLegend(215,510321,show,"GDP")
     svg.selectAll(".bubble").remove();
 var logScale= d3.scaleLog().domain([8,320])
 var color= d3.scaleSequential((d)=> d3.interpolateReds(logScale(d)));
