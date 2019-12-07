@@ -3,13 +3,11 @@
 //Output-side real GDP per capita (2011 international-$)
 
 //"Deaths - Air pollution - Sex: Both - Age: Age-standardized (Rate) (deaths per 100,000)"
-var screen= {width:800, height:500}
+var screen= {width:750, height:500}
 var margins={top:10,right:50,bottom:50,left:50}
 
 
-    svg= d3.select("#map")
-    .attr("width",screen.width)
-    .attr("height",screen.height)
+    svg= d3.select("#map").attr("width",800).attr("height",500)
 
 var projection=d3.geoEqualEarth().translate([370,300]).scale([170])
 
@@ -22,6 +20,7 @@ airPromise=d3.csv("air.csv");
 Promise.all([worldPromise,carbonPromise, gdpPromise, airPromise]).then(
     function(values){
         setup(values);
+	
     }, function(err){
         console.log("broken",err);
     }
@@ -74,7 +73,9 @@ color.domain([
 	svg.selectAll("path")
 	.data(values[0].features)
 	.enter()
-.append("path").attr("d",path).style("stroke","white").style("fill",function(d){
+.append("path").attr("d",path).style("stroke","black");
+	d3.select(".d")
+	.style("fill",function(d){
 		var value=GDP(d.datag,year)
         if (value){
             return color(value);}
@@ -98,7 +99,6 @@ var setup= function(values){
 .append("path").attr("d",path).style("stroke","white").style("fill","#92b6d5");
 var combined=merge(values);
     year=1990;
-	
 
 
 
@@ -264,7 +264,11 @@ var color= d3.scaleSequential((d)=> d3.interpolateGreens(logScale(d)));
 		d3.select("#info").append("h1").text(name+" "+year);
 		d3.select("#info").append("p").text("Emission: "+ getEmission(d.data,year)+" Tonnes per Capita")
 		d3.select("#info").append("p").text("GDP: "+GDP(d.datag,year))
-	})
+	}).on("mouseout",function(){
+d3.select("#info").selectAll("h1").remove();
+		d3.select("#info").selectAll("p").remove();
+})
+
 
 }
 
@@ -331,7 +335,11 @@ svg.append("g")
 	
 	
        
-	})
+	}).on("mouseout",function(){
+d3.select("#info").selectAll("h1").remove();
+		d3.select("#info").selectAll("p").remove();
+})
+
 	
 	
 }
@@ -396,7 +404,10 @@ svg.selectAll(".cb").on("mouseover",function(d){
 		d3.select("#info").append("h1").text(name+" "+year);
 		d3.select("#info").append("p").text("GDP: "+GDP(d.datag,year));
 		d3.select("#info").append("p").text("Deaths by Air Pollution: "+ Death(d.datar,year)+"Deaths - Air pollution - Sex: Both - Age: Age-standardized (Rate) (deaths per 100,000)")
-	})
+	}).on("mouseout",function(){
+d3.select("#info").selectAll("h1").remove();
+		d3.select("#info").selectAll("p").remove();
+})
 
 }
 
