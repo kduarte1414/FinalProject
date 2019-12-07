@@ -20,6 +20,7 @@ airPromise=d3.csv("air.csv");
 Promise.all([worldPromise,carbonPromise, gdpPromise, airPromise]).then(
     function(values){
         setup(values);
+		displayAll(values);
 	
     }, function(err){
         console.log("broken",err);
@@ -65,25 +66,122 @@ d3.select("#legend").selectAll("legend").data(show)
 
 //First visual
 var displayAll=function(values){
-	var color= d3.scaleQuantize()
-.range(["rgb(237,248,233)","rgb(116,196,118)","rgb(116,196,118)","rgb(49,163,84)","rgb(0,90,50)"]);
-color.domain([
-	215,510321]);
+
+	
+var data=values[0]
+var logScale= d3.scaleLog().domain([215,510321])
+var color= d3.scaleSequential((d)=> d3.interpolateGreens(logScale(d)))
+		year=1990;
 //getting the topoJson;
 	svg.selectAll("path")
-	.data(values[0].features)
+	.data(data.features)
 	.enter()
-.append("path").attr("d",path).style("stroke","black");
-	d3.select(".d")
-	.style("fill",function(d){
+.append("path").attr("d",path).style("stroke","white").style("fill","lightgray");
+var combined=merge(values);
+	svg.selectAll("path")
+		.style("fill",function(d){
 		var value=GDP(d.datag,year)
         if (value){
             return color(value);}
         else { return "#ccc"}
 	
-	});
+	})
+
+	
+		years=[1990,1991,1992,1993,1994,1995,1996,1997,1998,1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017]
+	d3.select("#year").selectAll("tr").remove();
+d3.select("#year").selectAll("tr")
+.data(years).enter().append("tr").attr("class","timebutton").text(function(d){
+	return d
+}).on("mouseover",function(d){
+	console.log("d",d)
+	year=d;
+	d3.select("#time").text(d)
+	drawDisplay(combined,year)});
+	
+	drawDisplay(combined,year)
+	
 }
 
+drawDisplay=function(data,year){
+	show=[10,30,64]
+d3.select("#footer").selectAll("td").remove();			
+var logScale= d3.scaleLog().domain([8,320])
+var color= d3.scaleSequential((d)=> d3.interpolateReds(logScale(d)));
+var logScale2= d3.scaleLog().domain([215,510321])
+var color2= d3.scaleSequential((d)=> d3.interpolateGreens(logScale2(d)))
+drawLegend(0,64,show,"Carbon Emissions")
+	d3.select("#legend").append("text").text("Deaths per 100,000").attr("x",5).attr("y",358).style("font-size",10)
+	d3.select("#legend").selectAll("rect").remove();
+	d3.select("#legend").append("rect").attr("x",50)
+	.attr("y",360).attr("width",10).attr("height",10).style("fill",color(8))
+	d3.select("#legend").append("rect").attr("x",50)
+	.attr("y",370).attr("width",10).attr("height",10).style("fill",color(150))
+	d3.select("#legend").append("rect").attr("x",50)
+	.attr("y",380).attr("width",10).attr("height",10).style("fill",color(320));
+	
+	//GDP COLOR LEGEND
+	d3.select("#legend").append("text").text("GDP").attr("x",40).attr("y",300).style("font-size",10)
+	d3.select("#legend").append("rect").attr("x",50)
+	.attr("y",310).attr("width",10).attr("height",10).style("fill",color2(215))
+	d3.select("#legend").append("rect").attr("x",50)
+	.attr("y",320).attr("width",10).attr("height",10).style("fill",color2(25642.5))
+	d3.select("#legend").append("rect").attr("x",50)
+	.attr("y",330).attr("width",10).attr("height",10).style("fill",color2(510321))
+
+  svg.selectAll("path").data(data).style("fill",function(d){
+		var value=GDP(d.datag,year)
+        if (value){
+            return color2(value);}
+        else { return "#ccc"}
+	
+	})
+	var radius = d3.scaleSqrt()
+    .domain([0,64])
+    .range([2,20]);
+	
+svg.append("g")
+	.attr("class","bubble")
+	.selectAll("circle")
+	.data(data)
+	.enter().append("circle")
+      .attr("transform", function(d) 
+		  { 
+		return "translate(" + path.centroid(d) + ")";
+		  })
+	.attr("r",function(d)
+
+	{ 	
+		if (d.data){
+      emission=getEmission(d.data,year)
+		r=radius(emission);
+		}
+		else {
+			r=0
+		}
+		return r;
+	})
+	.style("fill",function(d){
+        var value=Death(d.datar,year)
+        if (value){
+            return color(value);}
+        else { return "#ccc"}
+        }	
+    ).on("mouseover",function(d){
+		name=d.data[year].Name
+		d3.select("#info").selectAll("h1").remove();
+		d3.select("#info").selectAll("p").remove();
+		d3.select("#info").append("h1").text(name+" "+year);
+	  d3.select("#info").append("p").text("GDP: "+GDP(d.datag,year));
+		d3.select("#info").append("p").text("Emission: "+ getEmission(d.data,year)+" Tonnes Per Capita")
+		d3.select("#info").append("p").text("Deaths: "+Death(d.datar,year)+ " Deaths - Air pollution - Sex: Both - Age: Age-standardized (Rate) (deaths per 100,000)")
+	}).on("mouseout",function(){
+d3.select("#info").selectAll("h1").remove();
+		d3.select("#info").selectAll("p").remove();
+});
+
+
+}
 
 
 
@@ -93,7 +191,7 @@ var setup= function(values){
 	//Creating the background Map
 
 //getting the topoJson;
-	svg.selectAll("path")
+	svg.selectAll("path").style("fill","#92b6d5")
 	.data(values[0].features)
 	.enter()
 .append("path").attr("d",path).style("stroke","white").style("fill","#92b6d5");
@@ -102,11 +200,9 @@ var combined=merge(values);
 
 
 
-var values=["Emissions Tonnes per Capita/GDP","Emissions Tonnes per Capita/Deaths related to Air Pollution","GDP/Deaths related to Air Pollution"];
+var values=["Emissions Tonnes per Capita/GDP","Emissions Tonnes per Capita/Deaths related to Air Pollution","GDP/Deaths related to Air Pollution", "Display All"];
 d3.select("#options").append("td").text(values[0]).on("click",function(d){
     drawCircles(combined,year)
-	
-
 	years=[1990,1991,1992,1993,1994,1995,1996,1997,1998,1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017]
 d3.select("#year").selectAll("tr").remove();
 d3.select("#year").selectAll("tr").data(years).enter().append("tr").attr("class","timebutton").text(function(d){
@@ -121,7 +217,8 @@ d3.select("#year").selectAll("tr").data(years).enter().append("tr").attr("class"
 	
 
 d3.select("#options").append("td").text(values[1]).on("click",function(d){
-	optionED(combined,year)
+	
+	optionED(combined, year)
 	d3.select("#year").selectAll("tr").remove();
 	years=[1990,1991,1992,1993,1994,1995,1996,1997,1998,1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017]
 d3.select("#year").selectAll("tr")
@@ -148,7 +245,25 @@ d3.select("#year").selectAll("tr")
 	d3.select("#time").text(d)
 	optionGD(combined,year)	
 })
-});
+	
+})
+	/*d3.select("#footer").append("td").text("Display All").on("click",function(d){
+			drawDisplay(combined,year);
+		years=[1990,1991,1992,1993,1994,1995,1996,1997,1998,1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017]
+	d3.select("#year").selectAll("tr").remove();
+d3.select("#year").selectAll("tr")
+.data(years).enter().append("tr").attr("class","timebutton").text(function(d){
+	return d
+}).on("mouseover",function(d){
+	console.log("d",d)
+	year=d;
+	d3.select("#time").text(d)
+	drawDisplay(combined,year)});*/
+	
+	//drawDisplay(combined,year)
+	
+
+	
 }
 
 
@@ -217,7 +332,7 @@ drawLegend(0,64,show,"Carbon Emissions")
 var logScale= d3.scaleLog().domain([215,510321])
 var color= d3.scaleSequential((d)=> d3.interpolateGreens(logScale(d)));
 
-
+svg.selectAll("path").style("fill","#92b6d5");
 	d3.select("#legend").selectAll("rect").remove();
 	d3.select("#legend").append("text").text("GDP").attr("x",40).attr("y",355).style("font-size",10)
 	d3.select("#legend").append("rect").attr("x",50)
@@ -268,14 +383,27 @@ var color= d3.scaleSequential((d)=> d3.interpolateGreens(logScale(d)));
 d3.select("#info").selectAll("h1").remove();
 		d3.select("#info").selectAll("p").remove();
 })
-
-
+d3.select("#footer").selectAll("td").remove();	
+d3.select("#footer").append("td").text("Display GDP,Deaths, and Emissions").on("click",function(d){
+		drawDisplay(data,year);
+		years=[1990,1991,1992,1993,1994,1995,1996,1997,1998,1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017]
+	d3.select("#year").selectAll("tr").remove();
+d3.select("#year").selectAll("tr")
+.data(years).enter().append("tr").attr("class","timebutton").text(function(d){
+	return d
+}).on("mouseover",function(d){
+	console.log("d",d)
+	year=d;
+	d3.select("#time").text(d)
+	drawDisplay(data,year)});
+})
 }
 
 // Function that draws circles for deaths Vs Emissions
 var optionED= function(data,year){
 show=[10,30,64]
 svg.selectAll(".bubble").remove();
+svg.selectAll("path").style("fill","#92b6d5")
 	//Death counts will be bubble color
 var logScale= d3.scaleLog().domain([8,320])
 var color= d3.scaleSequential((d)=> d3.interpolateReds(logScale(d)));
@@ -340,14 +468,27 @@ d3.select("#info").selectAll("h1").remove();
 		d3.select("#info").selectAll("p").remove();
 })
 
-	
+d3.select("#footer").selectAll("td").remove();		
+d3.select("#footer").append("td").text("Display GDP,Deaths, and Emissions").on("click",function(d){
+		drawDisplay(data,year);
+		years=[1990,1991,1992,1993,1994,1995,1996,1997,1998,1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017]
+	d3.select("#year").selectAll("tr").remove();
+d3.select("#year").selectAll("tr")
+.data(years).enter().append("tr").attr("class","timebutton").text(function(d){
+	return d
+}).on("mouseover",function(d){
+	console.log("d",d)
+	year=d;
+	d3.select("#time").text(d)
+	drawDisplay(data,year)});
+})
 	
 }
 
 
 
 var optionGD=function(data,year){
-
+svg.selectAll("path").style("fill","#92b6d5");
     var radius = d3.scaleSqrt()
     .domain([215,510321])
     .range([2,20]);
@@ -408,7 +549,20 @@ svg.selectAll(".cb").on("mouseover",function(d){
 d3.select("#info").selectAll("h1").remove();
 		d3.select("#info").selectAll("p").remove();
 })
-
+d3.select("#footer").selectAll("td").remove()
+d3.select("#footer").append("td").text("Display GDP,Deaths,and Emissions").on("click",function(d){
+		drawDisplay(data,year);
+		years=[1990,1991,1992,1993,1994,1995,1996,1997,1998,1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017]
+d3.select("#year").selectAll("tr").remove();
+d3.select("#year").selectAll("tr")
+.data(years).enter().append("tr").attr("class","timebutton").text(function(d){
+	return d
+}).on("mouseover",function(d){
+	console.log("d",d)
+	year=d;
+	d3.select("#time").text(d)
+	drawDisplay(data,year)});
+})
 }
 
 var Death= function(country,time){
